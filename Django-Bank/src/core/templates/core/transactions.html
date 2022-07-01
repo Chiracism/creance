@@ -1,0 +1,201 @@
+{% extends 'core/base.html' %}
+{% block head_extra %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+{% comment %} <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<div class="wrapper overflow"> {% endcomment %}
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+{% endblock %}
+
+{% block title %} Transactions | {{ block.super }}{% endblock title %}
+
+{% block content %}
+{% include "core/messages.html" %}
+{% load mathfilters %}
+    <div class="page-header">
+      <h1 class="text-center"><b>Lignes Maritimes Congolaises</b><br><small>Armement National</small></h1>
+    </div>
+
+<div class="row">
+
+  <div class="col-xs-12 col-md-8 text-left">
+    <h4><b>Nom du compte: </b>{{ user.full_name }}</h4>
+    <h4><b>Date de Naissance: </b>{{ user.account.birth_date }}</h4>
+    <h4><b>Genre: </b>{{ user.account.get_gender_display }}</h4>
+    <h4><b>Téléphone: </b>{{ user.contact_no }}</h4>
+    <h4><b>Adresse E-mail: </b>{{ user.email }}</h4>
+    <h4><b>Adresse: </b>{{ user.full_address }}</h4>
+  </div>
+  <div class="col-xs-6 col-md-4 text-left">
+    <h4><b>Compte Créé: </b>{{ user.date_joined|date:'d-m-Y' }}</h4>
+    <h4><b>N° Compte Trésorerie: </b>{{ user.account_no }}</h4>
+    <h4><b>Matricule: </b>{{user.account.matricule}}</h4>
+    <h4><b>Grade: </b>{{user.account.grade}}</h4>
+    <h4><b>Fonction: </b>{{user.account.fonction}}</h4></br></br>
+    <div class="well">
+    
+    <h4 class="card"><b>Créance : {{ deposit_rest }},00 $</b></h4>
+    {% comment %} <a class="btn btn-success" href="{% url 'transactions:deposit' %}">Deposit</a>
+    <a class="btn btn-danger" href="{% url 'transactions:withdrawal' %}">Withdraw</a> {% endcomment %}
+    </div>
+  </div>
+
+</div>
+
+    {% comment %} <form method="get">
+        <div class="mt-10 h-10 pl-3 pr-2 bg-white border rounded-md border-gray-500 flex justify-between items-center relative">
+            <input type="search" name="daterange" id="search" placeholder="Filter using date range" value="{{ request.GET.daterange }}" class="appearance-none w-full outline-none focus:outline-none active:outline-none" />
+            <button type="submit" class="ml-1 outline-none focus:outline-none active:outline-none">
+                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-6 h-6">
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </button>
+        </div>
+        {% if form.daterange.errors %}
+            {% for error in form.daterange.errors %}
+                <p class="text-red-600 text-sm italic">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+    </form> {% endcomment %}
+
+<hr>
+
+  <div class="page-header">
+  <h2 class="text-center"><b>Détails de la Transaction</b></h2>
+</div>
+{% load mathfilters %}
+<h3><b>Opérations</b></h3>
+<table class="table table-hover table-bordered ">
+  {% load mathfilters %}
+  <thead>
+    <tr>
+      <th class="table-secondary text-center">N°</th>
+      <th class="table-secondary text-center">DATE/HEURE</th>
+      <th class="table-secondary text-center">LIBELLE</th>
+      <th class="table-secondary text-center">REFERENCE</th>
+      <th class="table-secondary text-center">MONTANTS ARRETES ($)</th>
+      <th class="table-secondary text-center">MONTANTS PERCUS ($)</th>
+      <th class="table-secondary text-center">MONTANTS RESTANTS ($)</th>
+      {% comment %} <th class="table-secondary text-center">MONTANTS ($)</th> {% endcomment %}
+      {% comment %} <th class="text-center">Montants ($)</th> {% endcomment %}
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+    {% for obj in deposit %}
+      <th class="text-center" scope="row">{{forloop.counter}}</th>
+      {% load mathfilters %}
+      <td class="text-center">{{ obj.timestamp }}</td>
+      <td class="text-center">{{ obj.libelle }}</td>
+      <td class="text-center">{{ obj.reference }}</td>
+      <td class="text-center">{{ obj.amount_arrete }}</td>
+      <td class="text-center">{{ obj.amount_percu }}</td>
+      {% comment %} <td>{{ obj.calculate_balance }}</td> {% endcomment %}
+      {% comment %} <td>{{ obj.amount_restant }}</td> {% endcomment %}
+      {% comment %} <td>{{ obj.amount_arrete }} - {{ obj.amount_percu }}</td> {% endcomment %}
+      {% comment %} <td>{{obj.amount_arrete |subtract: obj.amount_percu}}</td> {% endcomment %}
+      <td class="text-center">{{ obj.amount_restant }}</td>
+      {% comment %} <td>{{ obj.amount_arrete |sub: obj.amount_percu }}</td> {% endcomment %}
+      {% comment %} <td class="text-center">{{ obj.amount }}</td> {% endcomment %}
+    </tr>
+    {% endfor %}
+    <tr>
+      <th class="text-center" scope="row" colspan="4">Total Général</th>
+      <td class="text-center"><b>{{ deposit_arrete }},00 $</b></td>
+      {% comment %} <th class="text-center" scope="row" colspan="4">Total Général</th>
+      <td class="text-center">{{ deposit_sum }}</td> {% endcomment %}
+      <th class="table-info text-center" scope="row" colspan="1">Montant Restant</th>
+      <td class="table-info text-center"><b>{{ deposit_rest }},00 $</b></td>
+      {% comment %} <td class="text-center"><b>{{ deposit_sum }}</b></td> {% endcomment %}
+    </tr>
+  </tbody>
+</table>
+<hr>
+
+<h3><b>Détails Versement</b></h3>
+<table class="table table-hover table-bordered">
+  <thead>
+    <tr>
+      <th class="table-secondary text-center">N°</th>
+      <th class="table-secondary text-center">DATE/HEURE</th>
+      <th class="table-secondary text-center">LIBELLE</th>
+      <th class="table-secondary text-center">REFERENCE</th>
+      {% comment %} <th class="table-secondary text-center">MONTANT ($) DISPONIBLE</th> {% endcomment %}
+      <th class="table-secondary text-center">MONTANT ($) </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+    {% for obj in withdrawal %}
+      <th class="text-center" scope="row">{{forloop.counter}}</th>
+      <td>{{ obj.timestamp }}</td>
+      <td class="text-center">{{ obj.libelle }}</td>
+      <td class="text-center">{{ obj.reference }}</td>
+      {% comment %} <td class="text-center">{{ obj.amount }}</td> {% endcomment %}
+      <td class="text-center">{{ obj.amount_restant }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      {% comment %} <th class="text-center" scope="row" colspan="1">Total</th>
+      <td class="table-info text-center"><b>{{ withdrawal_sum }},00 $</b></td> {% endcomment %}
+            <th class="text-center" scope="row" colspan="4">Total</th>
+      <td class="table-info text-center"><b>{{ withdrawal_rest }},00 $</b></td>
+    </tr>
+  </tbody>
+</table>
+<hr>
+
+
+{% comment %} <h3>Interest Details</h3>
+<table class="table table-hover table-bordered">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Date / Time</th>
+      <th>Details</th>
+      <th>Amount ($)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+    {% for obj in interest %}
+      <th scope="row">{{forloop.counter}}</th>
+      <td>{{ obj.timestamp }}</td>
+      <td>Interest</td>
+      <td>{{ obj.amount }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <th class="text-right" scope="row" colspan="3">Total</th>
+
+      <td>{{ interest_sum }}</td>
+    </tr>
+   
+  </tbody>
+</table>
+<hr> {% endcomment %}
+
+{% endblock content %}
+
+{% block footer_extra %}
+    <script type="text/javascript">
+        $(function () {
+            $('input[name="daterange"]').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: "Clear",
+                },
+            });
+
+            $('input[name="daterange"]').on("apply.daterangepicker", function (ev, picker) {
+                $(this).val(picker.startDate.format("YYYY-MM-DD") + " - " + picker.endDate.format("YYYY-MM-DD"));
+            });
+
+            $('input[name="daterange"]').on("cancel.daterangepicker", function (ev, picker) {
+                $(this).val("");
+            });
+        });
+    </script>
+{% endblock %}
